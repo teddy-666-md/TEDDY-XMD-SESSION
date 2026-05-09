@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEDDY-XMD | WHATSAPP BOT</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00ff41;
+            --secondary: #00cc33;
+            --dark: #000;
+            --darker: #0a0a0a;
+            --light: #e0e0e0;
+            --gray: #666;
+            --sidebar-w: 260px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        /* Sidebar */
+       .sidebar {
+            width: var(--sidebar-w);
+            background: rgba(0, 0, 0, 0.9);
+            border-right: 1px solid rgba(0, 255, 65, 0.3);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+       .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+        }
+
+       .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+        }
+
+       .logo-icon {
+            font-size: 2rem;
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary);
+        }
+
+       .logo-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary);
+            letter-spacing: 2px;
+        }
+
+       .nav-menu {
+            padding: 1.5rem 0;
+        }
+
+       .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+       .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: var(--gray);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+       .nav-link:hover,.nav-link.active {
+            color: var(--primary);
+            background: rgba(0, 255, 65, 0.05);
+            border-left-color: var(--primary);
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+       .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+       .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(0, 255, 65, 0.2);
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+       .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+       .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Content */
+       .main-content {
+            margin-left: var(--sidebar-w);
+            flex: 1;
+            padding: 3rem;
+            overflow-y: auto;
+        }
+
+       .page-header {
+            margin-bottom: 3rem;
+        }
+
+       .page-title {
+            font-size: 2.5rem;
+            color: var(--primary);
+            text-shadow: 0 0 20px var(--primary);
+            margin-bottom: 0.5rem;
+            letter-spacing: 2px;
+        }
+
+       .page-subtitle {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+       .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+       .stat-card {
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+       .stat-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 25px rgba(0, 255, 65, 0.3);
+            transform: translateY(-3px);
+        }
+
+       .stat-label {
+            color: var(--gray);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+       .stat-value {
+            font-size: 2rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+       .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+       .card {
+            background: rgba(0, 255, 65, 0.05);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            padding: 2rem;
+        }
+
+       .card-title {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+       .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            border: 2px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+       .btn:hover {
+            background: var(--primary);
+            color: var(--dark);
+            box-shadow: 0 0 25px var(--primary);
+        }
+
+       .btn-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+       .log-list {
+            list-style: none;
+        }
+
+       .log-item {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+       .log-item:last-child {
+            border-bottom: none;
+        }
+
+       .log-time {
+            color: var(--primary);
+            margin-right: 1rem;
+        }
+
+        /* Mobile */
+       .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 101;
+            background: var(--dark);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.8rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1024px) {
+           .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+           .sidebar {
+                transform: translateX(-100%);
+            }
+           .sidebar.active {
+                transform: translateX(0);
+            }
+           .main-content {
+                margin-left: 0;
+                padding: 5rem 1.5rem 2rem;
+            }
+           .menu-toggle {
+                display: block;
+            }
+           .page-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="#" class="logo">
+                <i class="fas fa-terminal logo-icon"></i>
+                <span class="logo-text">TEDDY-XMD</span>
+            </a>
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-item">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-home"></i>
+                    <span>DASHBOARD</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="./pair" class="nav-link">
+                    <i class="fas fa-link"></i>
+                    <span>PAIR CODE</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="./qr" class="nav-link">
+                    <i class="fas fa-qrcode"></i>
+                    <span>QR LOGIN</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="https://github.com/mauricegift/gifted-md" target="_blank" class="nav-link">
+                    <i class="fab fa-github"></i>
+                    <span>SOURCE CODE</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="https://t.me/mouricedevs" target="_blank" class="nav-link">
+                    <i class="fab fa-telegram"></i>
+                    <span>SUPPORT</span>
+                </a>
+            </div>
+            <div class="nav-item">
+                <a href="https://whatsapp.com/channel/0029Vb3hlgX5kg7G0nFggl0Y" target="_blank" class="nav-link">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>UPDATES</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="status">
+                <div class="status-dot"></div>
+                <span>SYSTEM ONLINE</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">DASHBOARD</h1>
+            <p class="page-subtitle">TEDDY-XMD WhatsApp Bot Control Panel</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Status</div>
+                <div class="stat-value">ONLINE</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Uptime</div>
+                <div class="stat-value" id="uptime">00:00:00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Version</div>
+                <div class="stat-value">v6.7.9</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Mode</div>
+                <div class="stat-value">MD</div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <div class="card">
+                <h3 class="card-title">
+                    <i class="fas fa-bolt"></i>
+                    QUICK ACTIONS
+                </h3>
+                <div class="btn-group">
+                    <a href="./pair" class="btn">
+                        <i class="fas fa-link"></i> Pair Device
+                    </a>
+                    <a href="./qr" class="btn">
+                        <i class="fas fa-qrcode"></i> Scan QR
+                    </a>
+                    <a href="#" class="btn">
+                        <i class="fas fa-refresh"></i> Restart
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">
+                    <i class="fas fa-terminal"></i>
+                    SYSTEM LOG
+                </h3>
+                <ul class="log-list">
+                    <li class="log-item">
+                        <span class="log-time">[14:32:11]</span>
+                        Bot initialized successfully
+                    </li>
+                    <li class="log-item">
+                        <span class="log-time">[14:32:10]</span>
+                        Connected to WhatsApp
+                    </li>
+                    <li class="log-item">
+                        <span class="log-time">[14:32:08]</span>
+                        Loading plugins...
+                    </li>
+                    <li class="log-item">
+                        <span class="log-time">[14:32:05]</span>
+                        Session restored
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Matrix Rain
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const alphabet = '01アイウエオカキクケコサシスセソタチツテト';
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const rainDrops = Array(Math.floor(columns)).fill(1);
+
+        const draw = () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00ff41';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
+        };
+
+        setInterval(draw, 35);
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Mobile menu
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Fake uptime counter
+        let seconds = 0;
+        setInterval(() => {
+            seconds++;
+            const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+            const secs = String(seconds % 60).padStart(2, '0');
+            document.getElementById('uptime').textContent = `${hrs}:${mins}:${secs}`;
+        }, 1000);
+    </script>
+</body>
+</html>
